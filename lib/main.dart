@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:reading_arabic/pages/loginsingup/login_signup_page.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // SystemChrome.setSystemUIOverlayStyle(
+  //     SystemUiOverlayStyle(statusBarColor: const Color.fromARGB(160, 0, 0, 0)));
+  // SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+  //     overlays: [SystemUiOverlay.top]);
+
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+      overlays: SystemUiOverlay.values);
+
   runApp(const MyApp());
 }
 

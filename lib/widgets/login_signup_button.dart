@@ -6,6 +6,7 @@ class LoginSignupButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
+      borderRadius: BorderRadius.circular(14),
       child: Ink(
         height: 52,
         decoration: BoxDecoration(

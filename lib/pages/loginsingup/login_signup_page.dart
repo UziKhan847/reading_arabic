@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:reading_arabic/pages/loginsingup/login_signup_tile.dart';
-import 'package:reading_arabic/widgets/background_corner.dart';
+import 'package:reading_arabic/assets/logo_name.dart';
+import 'package:reading_arabic/assets/background_corner.dart';
+import 'package:reading_arabic/widgets/login_signup_button.dart';
 
 class LoginSignupPage extends StatefulWidget {
   const LoginSignupPage(this.constraints, {super.key});
@@ -13,14 +14,28 @@ class LoginSignupPage extends StatefulWidget {
 
 class _LoginSignupPageState extends State<LoginSignupPage>
     with SingleTickerProviderStateMixin {
-  final controller = PageController();
+  late AnimationController animControllerSwipeColor;
+  late Animation<double> animSwipeColor;
 
   @override
   void initState() {
     super.initState();
-    controller.addListener(() {
-      setState(() {});
-    });
+
+    animControllerSwipeColor = AnimationController(
+      duration: Duration(seconds: 2),
+      vsync: this,
+    );
+
+    animSwipeColor = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(animControllerSwipeColor);
+  }
+
+  @override
+  void dispose() {
+    animControllerSwipeColor.dispose();
+    super.dispose();
   }
 
   @override
@@ -32,8 +47,6 @@ class _LoginSignupPageState extends State<LoginSignupPage>
           children: [
             //background
             Positioned(
-              right:
-                  controller.hasClients ? -30 + (controller.offset / 6) : -30,
               child: SizedOverflowBox(
                 size: Size(constraints.maxWidth, constraints.maxHeight),
                 child: Image(
@@ -43,43 +56,136 @@ class _LoginSignupPageState extends State<LoginSignupPage>
                 ),
               ),
             ),
+
             //logo
-            Positioned(
-                left: constraints.maxWidth / 4,
-                top: 120,
-                child: Opacity(
-                  opacity: controller.hasClients
-                      ? ((controller.offset / 360) - 1).abs()
-                      : 1,
-                  child: Image.asset(
-                    'assets/images/logo_name.png',
-                    height: 70,
-                  ),
-                )),
-            Positioned(
-                left: constraints.maxWidth / 4,
-                top: 120,
-                child: Opacity(
-                  opacity: controller.hasClients ? controller.offset / 360 : 0,
-                  child: Image.asset(
-                    'assets/images/logo_name_2.png',
-                    height: 70,
-                  ),
-                )),
-
-
-                
-            PageView(
-              controller: controller,
-              children: [
-                LoginSignupTile(),
-                LoginSignupTile(),
-              ],
+            LogoName(
+              x: 0,
+              y: -0.65,
             ),
-            BackgroundCorner(top: -45, right: -58),
-            BackgroundCorner(top: -45, left: -58, flipX: true),
-            BackgroundCorner(bottom: -45, right: -58, flipY: true),
-            BackgroundCorner(bottom: -45, left: -58, flipX: true, flipY: true),
+
+            Align(
+              alignment: Alignment(0, -0.38),
+              child: Text(
+                'Sign in',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w700,
+                  fontSize: 30,
+                  color: Color(0XFF4D4D4D),
+                ),
+              ),
+            ),
+
+            Align(
+              alignment: Alignment(0, -0.248),
+              child: Text(
+                'Start your journey to mastering Arabic!',
+                style: TextStyle(
+                  fontStyle: FontStyle.italic,
+                  fontFamily: 'Montserrat',
+                  fontSize: 12,
+                ),
+              ),
+            ),
+
+            Align(
+              alignment: Alignment(0, -0.11),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 34),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                      prefixIcon: Icon(
+                    Icons.email_outlined,
+                    color: Color(0xFF929292),
+                  )),
+                ),
+              ),
+            ),
+
+            Align(
+              alignment: Alignment(0, 0.142),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 34),
+                child: TextFormField(
+                  decoration: InputDecoration(
+                      prefixIcon: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: ImageIcon(
+                      AssetImage('assets/images/lock_icon.png'),
+                      color: Color(0xFF929292),
+                    ),
+                  )),
+                ),
+              ),
+            ),
+
+            Align(
+              alignment: Alignment(0, 0.39),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 34),
+                child: LoginSignupButton(),
+              ),
+            ),
+
+            Align(
+              alignment: Alignment(0, 0.622),
+              child: Text(
+                'Forgot password?',
+                style: TextStyle(
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w700,
+                  color: Color(0XFF4D4D4D),
+                ),
+              ),
+            ),
+
+            Align(
+              alignment: Alignment(0, 0.7),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'Not a member yet? ',
+                    style: TextStyle(
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.w700,
+                      color: Color(0XFF4D4D4D),
+                    ),
+                  ),
+                  Text(
+                    'Sign Up',
+                    style: TextStyle(
+                        fontFamily: 'Montserrat',
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFFAE8B2D)),
+                  ),
+                ],
+              ),
+            ),
+
+            // Align(
+            //     alignment: Alignment.center,
+            //     child: Image.asset(
+            //       'assets/images/corner_1.png',
+            //       width: 280,
+            //     )),
+
+            // Align(
+            //   alignment: Alignment.center,
+            //   child: ClipPath(
+            //     clipper: CornerCustomClipper(),
+            //     child: Container(
+            //       width: 280,
+            //       height: 263.164,
+            //       color: Colors.amberAccent.withAlpha(140),
+            //     ),
+            //   ),
+            // ),
+
+            BackgroundCorner(top: -46, right: -58),
+            BackgroundCorner(top: -46, left: -58, flipX: true),
+            BackgroundCorner(bottom: -46, right: -58, flipY: true),
+            BackgroundCorner(bottom: -46, left: -58, flipX: true, flipY: true),
           ],
         );
       }),
