@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:reading_arabic/assets/background_four_corner.dart';
 import 'package:reading_arabic/assets/logo_name.dart';
-import 'package:reading_arabic/assets/background_corner.dart';
 import 'package:reading_arabic/widgets/login_signup_button.dart';
 
 class LoginSignupPage extends StatefulWidget {
@@ -13,33 +13,101 @@ class LoginSignupPage extends StatefulWidget {
 }
 
 class _LoginSignupPageState extends State<LoginSignupPage>
-    with SingleTickerProviderStateMixin {
-  late AnimationController animControllerSwipeColor;
-  late Animation<double> animSwipeColor;
+    with TickerProviderStateMixin {
+  late List<AnimationController> gradAnimController;
+  late List<Animation<double>> gradAnim;
+
+  late AnimationController btnAnimController;
+  late Animation<double> btnAnim;
+
+  // late AnimationController btnTextAnimController;
+  // late Animation<double> btnTextSizeAnimation;
+  // late Animation<double> btnTextFadeAnimation;
+  // bool _textChanged = false;
+
+  late AnimationController swipeAnimController;
+  late Animation<double> swipeAnim;
 
   @override
   void initState() {
     super.initState();
 
-    animControllerSwipeColor = AnimationController(
-      duration: Duration(seconds: 2),
-      vsync: this,
+    //Gradient Animation
+    gradAnimController = List<AnimationController>.generate(
+      2,
+      (_) => AnimationController(
+          vsync: this, duration: Duration(milliseconds: 600)),
+      growable: false,
     );
 
-    animSwipeColor = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(animControllerSwipeColor);
+    gradAnim = List<Animation<double>>.generate(
+        2,
+        (int index) =>
+            Tween<double>(begin: 0, end: 1).animate(gradAnimController[index]
+              ..addListener(() {
+                setState(() {});
+              })));
+
+    //Button Animation
+    btnAnimController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 400));
+
+    btnAnim = Tween<double>(begin: 0.0, end: 0.3).animate(CurvedAnimation(
+      parent: btnAnimController,
+      curve: Curves.easeInOutBack,
+    ))
+      ..addListener(() {
+        setState(() {});
+      });
+
+    // //Button Text Animation
+    // btnTextAnimController = AnimationController(
+    //   duration: Duration(seconds: 1),
+    //   vsync: this,
+    // );
+
+    // btnTextSizeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+    //   CurvedAnimation(parent: btnTextAnimController, curve: Curves.easeInOut),
+    // );
+
+    // btnTextFadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
+    //   CurvedAnimation(parent: btnTextAnimController, curve: Curves.easeInOut),
+    // );
+
+    //Swipe Animation
+    swipeAnimController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 3000));
+
+    swipeAnim = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
+      parent: swipeAnimController,
+      curve: Curves.easeOutCirc,
+    ))
+      ..addListener(() {
+        setState(() {});
+      });
   }
 
   @override
   void dispose() {
-    animControllerSwipeColor.dispose();
+    for (AnimationController e in gradAnimController) {
+      e.dispose();
+    }
+
+    btnAnimController.dispose();
+    swipeAnimController.dispose();
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final backgroundSwipeValue = swipeAnim.value * 60;
+
+    List<Color> gradientColors = [
+      Color.lerp(Color(0xFF1d7569), Color(0xFF053b6d), gradAnim[0].value)!,
+      Color.lerp(Color(0xFF1d7569), Color(0xFF053b6d), gradAnim[1].value)!
+    ];
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: LayoutBuilder(builder: (_, constraints) {
@@ -47,6 +115,7 @@ class _LoginSignupPageState extends State<LoginSignupPage>
           children: [
             //background
             Positioned(
+              right: -30 + backgroundSwipeValue,
               child: SizedOverflowBox(
                 size: Size(constraints.maxWidth, constraints.maxHeight),
                 child: Image(
@@ -61,10 +130,11 @@ class _LoginSignupPageState extends State<LoginSignupPage>
             LogoName(
               x: 0,
               y: -0.65,
+              colors: gradientColors,
             ),
 
             Align(
-              alignment: Alignment(0, -0.38),
+              alignment: Alignment(-swipeAnim.value * 2, -0.38),
               child: Text(
                 'Sign in',
                 style: TextStyle(
@@ -111,7 +181,7 @@ class _LoginSignupPageState extends State<LoginSignupPage>
                       prefixIcon: Padding(
                     padding: const EdgeInsets.all(12.0),
                     child: ImageIcon(
-                      AssetImage('assets/images/lock_icon.png'),
+                      AssetImage('assets/icons/lock_icon.png'),
                       color: Color(0xFF929292),
                     ),
                   )),
@@ -119,11 +189,15 @@ class _LoginSignupPageState extends State<LoginSignupPage>
               ),
             ),
 
+            //Button for Login & Sign Up
             Align(
-              alignment: Alignment(0, 0.39),
+              alignment: Alignment(0, 0.39 + btnAnim.value),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 34),
-                child: LoginSignupButton(),
+                child: LoginSignupButton(
+                  onTap: () {},
+                  colors: gradientColors,
+                ),
               ),
             ),
 
@@ -152,12 +226,31 @@ class _LoginSignupPageState extends State<LoginSignupPage>
                       color: Color(0XFF4D4D4D),
                     ),
                   ),
-                  Text(
-                    'Sign Up',
-                    style: TextStyle(
-                        fontFamily: 'Montserrat',
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFFAE8B2D)),
+                  GestureDetector(
+                    onTap: () async {
+                      // toggleButtonAnimation = !toggleButtonAnimation;
+
+                      // toggleAnimation = !toggleAnimation;
+
+                      if (gradAnim[1].isCompleted) {
+                        swipeAnimController.reverse();
+                        await gradAnimController[1].reverse();
+                        await gradAnimController[0].reverse();
+                        btnAnimController.reverse();
+                      } else {
+                        await btnAnimController.forward();
+                        swipeAnimController.forward();
+                        await gradAnimController[0].forward();
+                        gradAnimController[1].forward();
+                      }
+                    },
+                    child: Text(
+                      'Sign Up',
+                      style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFFAE8B2D)),
+                    ),
                   ),
                 ],
               ),
@@ -165,9 +258,17 @@ class _LoginSignupPageState extends State<LoginSignupPage>
 
             // Align(
             //     alignment: Alignment.center,
-            //     child: Image.asset(
-            //       'assets/images/corner_1.png',
-            //       width: 280,
+            //     child: ShaderMask(
+            //       shaderCallback: (bounds) => LinearGradient(
+            //         begin: Alignment.centerRight,
+            //         end: Alignment.centerLeft,
+            //         colors: gradientColors,
+            //       ).createShader(bounds),
+            //       blendMode: BlendMode.srcATop,
+            //       child: Image.asset(
+            //         'assets/images/corner/corner_1.png',
+            //         width: 280,
+            //       ),
             //     )),
 
             // Align(
@@ -182,10 +283,34 @@ class _LoginSignupPageState extends State<LoginSignupPage>
             //   ),
             // ),
 
-            BackgroundCorner(top: -46, right: -58),
-            BackgroundCorner(top: -46, left: -58, flipX: true),
-            BackgroundCorner(bottom: -46, right: -58, flipY: true),
-            BackgroundCorner(bottom: -46, left: -58, flipX: true, flipY: true),
+            // Positioned(
+            //     child: ClipPath(
+            //   clipBehavior: Clip.hardEdge,
+            //   clipper: CornerCustomClipper(),
+            //   child: Container(
+            //     color: Colors.blue.withAlpha(160),
+            //   ),
+            // )),
+
+            // BackgroundCorner(
+            //   top: -46,
+            //   right: -58,
+            //   colors: gradientColors,
+            // ),
+            // BackgroundCorner(
+            //     top: -46, left: -58, flipX: true, colors: gradientColors),
+            // BackgroundCorner(
+            //     bottom: -46, right: -58, flipY: true, colors: gradientColors),
+            // BackgroundCorner(
+            //     bottom: -46,
+            //     left: -58,
+            //     flipX: true,
+            //     flipY: true,
+            //     colors: gradientColors),
+
+            BackgroundFourCorner(
+              colors: gradientColors,
+            )
           ],
         );
       }),
