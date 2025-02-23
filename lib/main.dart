@@ -5,13 +5,7 @@ import 'package:reading_arabic/pages/loginsingup/login_signup_page.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // SystemChrome.setSystemUIOverlayStyle(
-  //     SystemUiOverlayStyle(statusBarColor: const Color.fromARGB(160, 0, 0, 0)));
-  // SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-  //     overlays: [SystemUiOverlay.top]);
-
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-      overlays: SystemUiOverlay.values);
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
   runApp(const MyApp());
 }
@@ -58,9 +52,9 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: LayoutBuilder(builder: (_, constraints) {
-        return LoginSignupPage(constraints);
-      }),
+      home: LoginSignupPage(
+        MediaQuery.of(context).size,
+      ),
     );
   }
 }

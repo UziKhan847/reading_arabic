@@ -24,10 +24,11 @@ import 'package:flutter/material.dart';
 
 class LogoName extends StatelessWidget {
   const LogoName(
-      {super.key, required this.x, required this.y, required this.colors});
+      {super.key, required this.x, required this.y, required this.colors, required this.height});
 
   final double x;
   final double y;
+  final double height;
   final List<Color> colors;
 
   @override
@@ -38,7 +39,7 @@ class LogoName extends StatelessWidget {
           Align(
               alignment: Alignment(x, y),
               child: switch (i) {
-                1 => ShaderMask(
+                1 || 4 => ShaderMask(
                     shaderCallback: (bounds) => LinearGradient(
                       begin: Alignment.centerRight,
                       end: Alignment.centerLeft,
@@ -47,12 +48,12 @@ class LogoName extends StatelessWidget {
                     blendMode: BlendMode.srcATop,
                     child: Image.asset(
                       'assets/images/logo/logo_$i.png',
-                      height: 70,
+                      height: height,
                     ),
                   ),
                 _ => Image.asset(
                     'assets/images/logo/logo_$i.png',
-                    height: 70,
+                    height: height,
                   ),
               }),
         ]

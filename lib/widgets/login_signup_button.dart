@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
 
 class LoginSignupButton extends StatelessWidget {
-  const LoginSignupButton({super.key, this.onTap, required this.colors});
+  const LoginSignupButton(
+      {super.key,
+      this.onTap,
+      required this.xAxisLogin,
+      required this.xAxisSigup,
+      required this.colors,
+      this.height,
+      this.width});
 
   final void Function()? onTap;
   final List<Color> colors;
+  final double? height;
+  final double? width;
+  final double xAxisLogin;
+  final double xAxisSigup;
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +24,8 @@ class LoginSignupButton extends StatelessWidget {
       child: Material(
         //borderRadius: BorderRadius.circular(14),
         child: Ink(
-          height: 52,
+          height: height,
+          width: width,
           decoration: BoxDecoration(
             gradient: LinearGradient(
                 begin: Alignment.centerRight,
@@ -25,9 +37,9 @@ class LoginSignupButton extends StatelessWidget {
             onTap: onTap,
             //borderRadius: BorderRadius.circular(14),
             splashColor: Color(0xFFAE8B2D),
-            child: Center(
-              child: Align(
-                alignment: Alignment(-1.2, 0),
+            child: Stack(children: [
+              Align(
+                alignment: Alignment(xAxisLogin, 0),
                 child: Text(
                   "Login",
                   style: TextStyle(
@@ -37,7 +49,18 @@ class LoginSignupButton extends StatelessWidget {
                       fontSize: 21),
                 ),
               ),
-            ),
+              Align(
+                alignment: Alignment(xAxisSigup, 0),
+                child: Text(
+                  "Sign Up",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: 'Montserrat',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 21),
+                ),
+              ),
+            ]),
           ),
         ),
       ),

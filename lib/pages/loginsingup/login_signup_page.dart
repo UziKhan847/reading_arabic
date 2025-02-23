@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:reading_arabic/assets/background_four_corner.dart';
+import 'package:reading_arabic/assets/background_corner.dart';
 import 'package:reading_arabic/assets/logo_name.dart';
+import 'package:reading_arabic/utils/margins.dart';
 import 'package:reading_arabic/widgets/login_signup_button.dart';
 
 class LoginSignupPage extends StatefulWidget {
-  const LoginSignupPage(this.constraints, {super.key});
+  const LoginSignupPage(this.screenSize, {super.key});
 
-  final BoxConstraints constraints;
+  final Size screenSize;
 
   @override
   State<LoginSignupPage> createState() => _LoginSignupPageState();
@@ -17,9 +18,6 @@ class _LoginSignupPageState extends State<LoginSignupPage>
   late List<AnimationController> gradAnimController;
   late List<Animation<double>> gradAnim;
 
-  late AnimationController btnAnimController;
-  late Animation<double> btnAnim;
-
   // late AnimationController btnTextAnimController;
   // late Animation<double> btnTextSizeAnimation;
   // late Animation<double> btnTextFadeAnimation;
@@ -27,6 +25,8 @@ class _LoginSignupPageState extends State<LoginSignupPage>
 
   late AnimationController swipeAnimController;
   late Animation<double> swipeAnim;
+
+  bool isLogin = true;
 
   @override
   void initState() {
@@ -36,7 +36,7 @@ class _LoginSignupPageState extends State<LoginSignupPage>
     gradAnimController = List<AnimationController>.generate(
       2,
       (_) => AnimationController(
-          vsync: this, duration: Duration(milliseconds: 600)),
+          vsync: this, duration: Duration(milliseconds: 400)),
       growable: false,
     );
 
@@ -48,40 +48,14 @@ class _LoginSignupPageState extends State<LoginSignupPage>
                 setState(() {});
               })));
 
-    //Button Animation
-    btnAnimController =
-        AnimationController(vsync: this, duration: Duration(milliseconds: 400));
-
-    btnAnim = Tween<double>(begin: 0.0, end: 0.3).animate(CurvedAnimation(
-      parent: btnAnimController,
-      curve: Curves.easeInOutBack,
-    ))
-      ..addListener(() {
-        setState(() {});
-      });
-
-    // //Button Text Animation
-    // btnTextAnimController = AnimationController(
-    //   duration: Duration(seconds: 1),
-    //   vsync: this,
-    // );
-
-    // btnTextSizeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
-    //   CurvedAnimation(parent: btnTextAnimController, curve: Curves.easeInOut),
-    // );
-
-    // btnTextFadeAnimation = Tween<double>(begin: 1.0, end: 0.0).animate(
-    //   CurvedAnimation(parent: btnTextAnimController, curve: Curves.easeInOut),
-    // );
-
     //Swipe Animation
-    swipeAnimController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 3000));
+    swipeAnimController =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 800));
 
     swipeAnim = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
-      parent: swipeAnimController,
-      curve: Curves.easeOutCirc,
-    ))
+        parent: swipeAnimController,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic))
       ..addListener(() {
         setState(() {});
       });
@@ -93,7 +67,6 @@ class _LoginSignupPageState extends State<LoginSignupPage>
       e.dispose();
     }
 
-    btnAnimController.dispose();
     swipeAnimController.dispose();
 
     super.dispose();
@@ -101,7 +74,7 @@ class _LoginSignupPageState extends State<LoginSignupPage>
 
   @override
   Widget build(BuildContext context) {
-    final backgroundSwipeValue = swipeAnim.value * 60;
+   // final orientation = MediaQuery.of(context).orientation;
 
     List<Color> gradientColors = [
       Color.lerp(Color(0xFF1d7569), Color(0xFF053b6d), gradAnim[0].value)!,
@@ -110,59 +83,90 @@ class _LoginSignupPageState extends State<LoginSignupPage>
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: LayoutBuilder(builder: (_, constraints) {
-        return Stack(
-          children: [
-            //background
-            Positioned(
-              right: -30 + backgroundSwipeValue,
+      body: Stack(
+        children: [
+          //background
+          Positioned(
+            right: -15 + swipeAnim.value * 30,
+            child: RotatedBox(
+              quarterTurns: 0,
               child: SizedOverflowBox(
-                size: Size(constraints.maxWidth, constraints.maxHeight),
+                size: Size(widget.screenSize.width, widget.screenSize.height),
                 child: Image(
                   image: AssetImage('assets/images/app_background.png'),
                   fit: BoxFit.cover,
-                  height: constraints.maxHeight,
+                  height: widget.screenSize.height,
                 ),
               ),
             ),
+          ),
 
-            //logo
-            LogoName(
-              x: 0,
-              y: -0.65,
-              colors: gradientColors,
-            ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              //LOGO
+              LogoName(
+                x: 0,
+                y: -0.7,
+                height: 75,
+                colors: gradientColors,
+              ),
+              Margins.vertical20,
 
-            Align(
-              alignment: Alignment(-swipeAnim.value * 2, -0.38),
-              child: Text(
-                'Sign in',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w700,
-                  fontSize: 30,
-                  color: Color(0XFF4D4D4D),
+              //SIGN IN
+              SizedBox(
+                child: Stack(children: [
+                  if (swipeAnim.value < 0.6)
+                    Align(
+                      alignment: Alignment(-swipeAnim.value * 5, 0),
+                      child: Text(
+                        'Sign in',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 30,
+                          color: Color(0XFF4D4D4D),
+                        ),
+                      ),
+                    ),
+
+                  //SIGN UP
+                  if (swipeAnim.value > 0.4)
+                    Align(
+                      alignment: Alignment(5 - swipeAnim.value * 5, 0),
+                      child: Text(
+                        'Sign up',
+                        style: TextStyle(
+                          fontFamily: 'Montserrat',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 30,
+                          color: Color(0XFF4D4D4D),
+                        ),
+                      ),
+                    ),
+                ]),
+              ),
+              Margins.vertical8,
+
+              //TEXT
+              Align(
+                alignment: Alignment(0, -0.33),
+                child: Text(
+                  'Start your journey to mastering Arabic!',
+                  style: TextStyle(
+                    fontStyle: FontStyle.italic,
+                    fontFamily: 'Montserrat',
+                    fontSize: 12,
+                  ),
                 ),
               ),
-            ),
+              Margins.vertical30,
 
-            Align(
-              alignment: Alignment(0, -0.248),
-              child: Text(
-                'Start your journey to mastering Arabic!',
-                style: TextStyle(
-                  fontStyle: FontStyle.italic,
-                  fontFamily: 'Montserrat',
-                  fontSize: 12,
-                ),
-              ),
-            ),
-
-            Align(
-              alignment: Alignment(0, -0.11),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 34),
-                child: TextFormField(
+              //EMAIL
+              SizedBox(
+                height: 56,
+                width: 325,
+                child: TextField(
                   decoration: InputDecoration(
                       prefixIcon: Icon(
                     Icons.email_outlined,
@@ -170,13 +174,13 @@ class _LoginSignupPageState extends State<LoginSignupPage>
                   )),
                 ),
               ),
-            ),
+              Margins.vertical32,
 
-            Align(
-              alignment: Alignment(0, 0.142),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 34),
-                child: TextFormField(
+              //PASSWORD
+              SizedBox(
+                height: 56,
+                width: 325,
+                child: TextField(
                   decoration: InputDecoration(
                       prefixIcon: Padding(
                     padding: const EdgeInsets.all(12.0),
@@ -187,74 +191,238 @@ class _LoginSignupPageState extends State<LoginSignupPage>
                   )),
                 ),
               ),
-            ),
+              Margins.vertical32,
 
-            //Button for Login & Sign Up
-            Align(
-              alignment: Alignment(0, 0.39 + btnAnim.value),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 34),
-                child: LoginSignupButton(
-                  onTap: () {},
-                  colors: gradientColors,
+              //REPASSWORD
+              SizedBox(
+                height: 56,
+                width: 325,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    //LOGIN SINGUP BUTTON
+                    if (swipeAnim.value < 0.6)
+                      Positioned(
+                        right: swipeAnim.value * 800,
+                        child: LoginSignupButton(
+                          height: 56,
+                          width: 325,
+                          xAxisLogin: 0 - swipeAnim.value * 10,
+                          xAxisSigup: 10 - swipeAnim.value * 10,
+                          onTap: () {},
+                          colors: gradientColors,
+                        ),
+                      ),
+
+                    //REPASSWORD
+                    if (swipeAnim.value > 0.4)
+                      Positioned(
+                        left: 800 - (swipeAnim.value * 800),
+                        child: SizedBox(
+                          height: 56,
+                          width: 325,
+                          child: TextField(
+                            decoration: InputDecoration(
+                                prefixIcon: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: ImageIcon(
+                                AssetImage('assets/icons/lock_icon.png'),
+                                color: Color(0xFF929292),
+                              ),
+                            )),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-            ),
+              Margins.vertical32,
 
-            Align(
-              alignment: Alignment(0, 0.622),
-              child: Text(
-                'Forgot password?',
-                style: TextStyle(
-                  fontFamily: 'Montserrat',
-                  fontWeight: FontWeight.w700,
-                  color: Color(0XFF4D4D4D),
+              //SIGN UP BUTTON
+              swipeAnim.value == 0
+                  ? SizedBox(
+                      height: 56,
+                    )
+                  : Align(
+                      alignment: Alignment(25 - swipeAnim.value * 25, 0),
+                      child: LoginSignupButton(
+                        height: 56,
+                        width: 325,
+                        xAxisLogin: 0 - swipeAnim.value * 10,
+                        xAxisSigup: 10 - swipeAnim.value * 10,
+                        onTap: () {},
+                        colors: gradientColors,
+                      ),
+                    ),
+
+              Margins.vertical18,
+
+              AnimatedSwitcher(duration: Duration(microseconds: 10000)),
+
+              //FORGOT PASSWORD
+              SizedBox(
+                height: 50,
+                child: Stack(
+                  children: [
+                    if (swipeAnim.value < 1)
+                      Align(
+                        alignment: Alignment(0 - swipeAnim.value * 4, -1),
+                        child: Text(
+                          'Forgot password?',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontFamily: 'Montserrat',
+                            fontWeight: FontWeight.w700,
+                            color: Color(0XFF4D4D4D),
+                          ),
+                        ),
+                      ),
+
+                    //MEMBER QUESTION
+                    if (swipeAnim.value < 1)
+                      Align(
+                        alignment: Alignment(0 - swipeAnim.value * 30, 1),
+                        child: SizedBox(
+                          width: 325,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Not a member yet? ',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0XFF4D4D4D),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () async {
+                                  if (gradAnim[1].isCompleted) {
+                                    swipeAnimController.reverse();
+                                    await gradAnimController[1].reverse();
+                                    await gradAnimController[0].reverse();
+                                    isLogin = !isLogin;
+                                  } else {
+                                    isLogin = !isLogin;
+                                    setState(() {});
+                                    await Future.delayed(
+                                        Duration(milliseconds: 300));
+                                    swipeAnimController.forward();
+                                    await gradAnimController[0].forward();
+                                    gradAnimController[1].forward();
+                                  }
+                                },
+                                child: Text(
+                                  'Sign Up',
+                                  style: TextStyle(
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFFAE8B2D)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                    if (swipeAnim.value > 0)
+                      //MEMBER QUESTION 2
+                      Align(
+                        alignment: Alignment(30 - swipeAnim.value * 30, 0),
+                        child: SizedBox(
+                          width: 325,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Already a member? ',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat',
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0XFF4D4D4D),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () async {
+                                  if (gradAnim[1].isCompleted) {
+                                    swipeAnimController.reverse();
+                                    await gradAnimController[1].reverse();
+                                    await gradAnimController[0].reverse();
+                                    isLogin = !isLogin;
+                                  } else {
+                                    isLogin = !isLogin;
+                                    setState(() {});
+                                    await Future.delayed(
+                                        Duration(milliseconds: 300));
+                                    swipeAnimController.forward();
+                                    await gradAnimController[0].forward();
+                                    gradAnimController[1].forward();
+                                  }
+                                },
+                                child: Text(
+                                  'Sign In',
+                                  style: TextStyle(
+                                      fontFamily: 'Montserrat',
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFFAE8B2D)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-            ),
+            ],
+          ),
 
-            Align(
-              alignment: Alignment(0, 0.7),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Not a member yet? ',
-                    style: TextStyle(
-                      fontFamily: 'Montserrat',
-                      fontWeight: FontWeight.w700,
-                      color: Color(0XFF4D4D4D),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      // toggleButtonAnimation = !toggleButtonAnimation;
+          BackgroundCorner(
+            top: -38,
+            right: -58,
+            colors: gradientColors,
+          ),
+          BackgroundCorner(
+              top: -38, left: -58, flipX: true, colors: gradientColors),
+          BackgroundCorner(
+              bottom: -38, right: -58, flipY: true, colors: gradientColors),
+          BackgroundCorner(
+              bottom: -38,
+              left: -58,
+              flipX: true,
+              flipY: true,
+              colors: gradientColors),
+        ],
+      ),
+    );
+  }
+}
 
-                      // toggleAnimation = !toggleAnimation;
 
-                      if (gradAnim[1].isCompleted) {
-                        swipeAnimController.reverse();
-                        await gradAnimController[1].reverse();
-                        await gradAnimController[0].reverse();
-                        btnAnimController.reverse();
-                      } else {
-                        await btnAnimController.forward();
-                        swipeAnimController.forward();
-                        await gradAnimController[0].forward();
-                        gradAnimController[1].forward();
-                      }
-                    },
-                    child: Text(
-                      'Sign Up',
-                      style: TextStyle(
-                          fontFamily: 'Montserrat',
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFFAE8B2D)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+
+
+
+
+            // Positioned(
+            //     child: ClipPath(
+            //   clipBehavior: Clip.hardEdge,
+            //   clipper: CornerCustomClipper(),
+            //   child: Container(
+            //     color: Colors.blue.withAlpha(160),
+            //   ),
+            // )),
+
+            // ClipPath(
+            //   clipBehavior: Clip.hardEdge,
+            //   clipper: CornerCustomClipper(),
+            //   child: BackgroundCorner(
+            //           colors: gradientColors, constraints: constraints)
+            //       .getBackgroundCorner(),
+            // ),
+
+
+
+
 
             // Align(
             //     alignment: Alignment.center,
@@ -308,12 +476,48 @@ class _LoginSignupPageState extends State<LoginSignupPage>
             //     flipY: true,
             //     colors: gradientColors),
 
-            BackgroundFourCorner(
-              colors: gradientColors,
-            )
-          ],
-        );
-      }),
-    );
-  }
-}
+
+
+            //  SizedBox(
+            //     height: 144,
+            //     width: 325,
+            //     child: Stack(
+            //       clipBehavior: Clip.none,
+            //       children: [
+            //         Positioned(
+            //           left: 800 - (swipeAnim.value * 800),
+            //           child: SizedBox(
+            //             height: 56,
+            //             width: 325,
+            //             child: TextField(
+            //               decoration: InputDecoration(
+            //                   prefixIcon: Padding(
+            //                 padding: const EdgeInsets.all(12.0),
+            //                 child: ImageIcon(
+            //                   AssetImage('assets/icons/lock_icon.png'),
+            //                   color: Color(0xFF929292),
+            //                 ),
+            //               )),
+            //             ),
+            //           ),
+            //         ),
+
+            //         //LOGIN SINGUP BUTTON
+            //         AnimatedAlign(
+            //           duration: Duration(milliseconds: 100),
+            //           curve: Curves.easeInBack,
+            //           alignment: isLogin
+            //               ? Alignment.topCenter
+            //               : Alignment.bottomCenter,
+            //           child: LoginSignupButton(
+            //             height: 56,
+            //             width: 325,
+            //             xAxisLogin: 0 - swipeAnim.value * 10,
+            //             xAxisSigup: 10 - swipeAnim.value * 10,
+            //             onTap: () {},
+            //             colors: gradientColors,
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),

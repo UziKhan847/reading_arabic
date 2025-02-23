@@ -27,6 +27,7 @@ class Margins {
   static const vertical26 = SizedBox(height: 26);
   static const vertical27 = SizedBox(height: 27);
   static const vertical28 = SizedBox(height: 28);
+  static const vertical30 = SizedBox(height: 30);
   static const vertical31 = SizedBox(height: 31);
   static const vertical32 = SizedBox(height: 32);
   static const vertical36 = SizedBox(height: 36);
